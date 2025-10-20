@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali 🎆</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    overflow: hidden;
+    height: 100%; width: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #4a148c, #ff6f00);
+    background-size: 400% 400%;
+    animation: gradientShift 10s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  canvas {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  #note {
+    position: absolute;
+    top: 25px; left: 25px;
+    font-size: 2rem;
+    color: #fff8e1;
+    text-shadow: 0 0 15px #ffeb3b, 0 0 30px #ff4081;
+    animation: glow 2s infinite alternate;
+    user-select: none;
+    z-index: 2;
+  }
+
+  @keyframes glow {
+    from { opacity: 0.7; text-shadow: 0 0 10px #ffeb3b; }
+    to { opacity: 1; text-shadow: 0 0 25px #ff80ab; }
+  }
+
+  #navbar {
+    position: absolute;
+    right: 25px; top: 25px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid #ff80ab;
+    border-radius: 30px;
+    padding: 25px;
+    display: flex; flex-direction: column; gap: 18px;
+    z-index: 3;
+    box-shadow: 0 0 25px #ff80ab;
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-btn {
+    background: linear-gradient(45deg, #ff80ab, #ffeb3b);
+    border: none;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px #7b1fa2;
+    font-size: 1.1rem;
+  }
+
+  .nav-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px #fff;
+  }
+
+  /* Registration / Greeting */
+  #register, #greeting {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.15);
+    border: 2px solid #ff80ab;
+    border-radius: 25px;
+    padding: 60px 45px;
+    text-align: center;
+    color: #fff7e6;
+    box-shadow: 0 0 30px #ff80ab;
+    backdrop-filter: blur(15px);
+    z-index: 4;
+    transition: all 1s ease;
+  }
+
+  #register.hide, #greeting.hide {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+    pointer-events: none;
+  }
+
+  #register h1, #greeting h1 {
+    font-size: 2.3rem;
+    margin-bottom: 25px;
+    text-shadow: 0 0 15px #ffeb3b, 0 0 25px #ff4081;
+    animation: glow 2s infinite alternate;
+  }
+
+  #register p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #ffeaa7;
+  }
+
+  #register input {
+    padding: 14px;
+    margin: 14px 0;
+    border-radius: 14px;
+    border: none;
+    width: 80%;
+    font-size: 1rem;
+    outline: none;
+    text-align: center;
+  }
+
+  #register button {
+    background: linear-gradient(45deg, #ff80ab, #ffeb3b);
+    border: none;
+    color: white;
+    padding: 14px 26px;
+    border-radius: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+  }
+
+  #register button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px #fff;
+  }
+
+  /* Creator Note */
+  #creator {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff8e1;
+    font-size: 1.2rem;
+    text-shadow: 0 0 15px #ff80ab, 0 0 25px #ffeb3b;
+    animation: glow 2s infinite alternate;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+
+  #creator img {
+    width: 30px;
+    height: 30px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="note">🎆 Tap anywhere to celebrate Diwali!</div>
+
+<div id="navbar">
+  <button class="nav-btn" id="rocketBtn">🎇 Rockets</button>
+  <button class="nav-btn" id="flowerPotBtn">🪔 Flower Pots</button>
+</div>
+
+<div id="register">
+  <h1>Happy Diwali! 🪔</h1>
+  <p>Enter your name to celebrate:</p>
+  <input type="text" id="nameInput" placeholder="Your Name" />
+  <button id="registerBtn">Celebrate</button>
+</div>
+
+<div id="greeting" class="hide">
+  <h1 id="greetText"></h1>
+</div>
+
+<!-- Creator Note -->
+<div id="creator">
+  <img src="https://cdn-icons-png.flaticon.com/512/10535/10535715.png" alt="diya">
+  <span>✨ Created by Sasi ✨</span>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let W = window.innerWidth;
+let H = window.innerHeight;
+canvas.width = W;
+canvas.height = H;
+
+window.addEventListener('resize', () => { W = window.innerWidth; H = window.innerHeight; canvas.width=W; canvas.height=H; });
+
+function random(min,max){ return Math.random()*(max-min)+min; }
+
+let particles=[], rockets=[], flowerPots=[], sparkles=[];
+
+// Background sparkles
+for(let i=0;i<150;i++){
+  sparkles.push({ x: Math.random()*W, y: Math.random()*H, alpha: Math.random(), size: random(1,2), dir: Math.random()*0.02-0.01 });
+}
+
+// Fireworks
+function createFirework(x,y){
+  const colors=["#ff4081","#ffeb3b","#40c4ff","#ff9100","#8bc34a"];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  const count = 80;
+  for(let i=0;i<count;i++){
+    const angle = Math.random()*2*Math.PI;
+    const speed = random(2,6);
+    particles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, alpha:1, color, size:random(2,4) });
+  }
+}
+
+// Rockets
+function createRocket(){
+  const x = random(W*0.2,W*0.8);
+  rockets.push({ x, y:H, vy:random(-7,-10), color:"#ffeb3b", exploded:false });
+}
+
+// Flower Pots - realistic arc fall
+function createFlowerPot(){
+  const x = random(W*0.1,W*0.9);
+  flowerPots.push({ x, y: H-20, vy: -5, vx: random(-1.5,1.5), exploded:false, time:0 });
+}
+
+// Draw Loop
+function draw(){
+  ctx.fillStyle="rgba(0,0,0,0.15)";
+  ctx.fillRect(0,0,W,H);
+
+  // Sparkles
+  sparkles.forEach(s=>{
+    s.alpha += s.dir;
+    if(s.alpha <=0.2 || s.alpha >=1) s.dir *= -1;
+    ctx.globalAlpha = s.alpha;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(s.x, s.y, s.size, s.size);
+  });
+
+  // Rockets
+  rockets.forEach((r,i)=>{
+    ctx.fillStyle=r.color; ctx.fillRect(r.x,r.y,3,10);
+    r.y += r.vy; r.vy += 0.1;
+    if(!r.exploded && r.vy>=0){ createFirework(r.x,r.y); r.exploded=true; setTimeout(()=>rockets.splice(i,1),1000);}
+  });
+
+  // Flower Pots
+  flowerPots.forEach((f,i)=>{
+    if(!f.exploded){
+      f.x += f.vx;
+      f.y += f.vy;
+      f.vy += 0.15; // gravity
+      ctx.fillStyle="#ff9100";
+      ctx.fillRect(f.x,f.y,6,12);
+      if(f.vy>0){ createFirework(f.x,f.y); f.exploded=true; setTimeout(()=>flowerPots.splice(i,1),500);}
+    }
+  });
+
+  // Particles
+  particles.forEach((p,i)=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.alpha-=0.01;
+    if(p.alpha<=0) particles.splice(i,1);
+    ctx.beginPath();
+    const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,8);
+    grad.addColorStop(0,p.color); grad.addColorStop(1,"transparent");
+    ctx.fillStyle=grad; ctx.globalAlpha=p.alpha;
+    ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+  });
+
+  ctx.globalAlpha=1;
+  requestAnimationFrame(draw);
+}
+
+// Event Listeners
+canvas.addEventListener("click", e=>createFirework(e.clientX,e.clientY));
+canvas.addEventListener("touchstart", e=>{ e.preventDefault(); const t=e.touches[0]; createFirework(t.clientX,t.clientY); }, {passive:false});
+
+// Navbar buttons
+document.getElementById("rocketBtn").addEventListener("click", createRocket);
+document.getElementById("flowerPotBtn").addEventListener("click", createFlowerPot);
+
+// Registration
+document.getElementById("registerBtn").addEventListener("click", ()=>{
+  const name = document.getElementById("nameInput").value.trim();
+  if(name===""){ alert("Please enter your name!"); return; }
+  const greet = document.getElementById("greetText");
+  greet.textContent = `🎉 Happy Diwali, ${name}! 🪔`;
+  document.getElementById("register").classList.add("hide");
+  document.getElementById("greeting").classList.remove("hide");
+  setTimeout(()=>{ document.getElementById("greeting").classList.add("hide"); },5000);
+});
+
+// Auto-hide registration after 15s (increased time)
+setTimeout(()=>{ document.getElementById("register").classList.add("hide"); },15000);
+
+draw();
+</script>
+</body>
+</html>
